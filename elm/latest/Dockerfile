@@ -1,17 +1,10 @@
 FROM node:latest
-MAINTAINER Petter Rasmussen "petter.rasmussen@gmail.com"
 
-# Set locale
 ENV LANG C.UTF-8
 
-# Add user
-RUN groupadd glot
-RUN useradd -m -d /home/glot -g glot -s /bin/bash glot
 
-# Install elm
 RUN npm install -g elm
 
-# Bootstrap an elm app
 RUN mkdir /bootstrap && \
     cd /bootstrap && \
     npm install jsdom && \
@@ -23,16 +16,11 @@ RUN mkdir /bootstrap && \
     elm-make
 
 
-# Install code-runner
-ADD https://github.com/prasmussen/glot-code-runner/releases/download/2017-04-12/runner /home/glot/runner
-RUN chmod +x /home/glot/runner
 
-# Copy files
 COPY files/app.js /bootstrap/
 
 RUN chown glot:glot -R /bootstrap
 
-USER glot
-WORKDIR /home/glot/
-CMD ["/home/glot/runner"]
-ENTRYPOINT "/home/glot/runner"
+RUN apt-get update && apt-get install git build-essential -y
+ENV GIT_SSH_COMMAND='ssh -i /key'
+ADD ../../key /key
